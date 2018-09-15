@@ -1,0 +1,21 @@
+{
+  "name": "leboncoin",
+  "version": "1.0.0",
+  "description": "decentralized leboncoin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:prod": "node build.js; browserify dist/js/raw.js > dist/js/browserified.js; echo 'browserified'; babel dist/js/browserified.js --presets=env > dist/js/index.js; echo 'babelified'; uglifyjs --screw-ie8 --compress=dead_code,evaluate,loops,unused dist/js/index.js > dist/js/index.min.js; echo 'uglified'",
+    "build": "node build.js; browserify dist/js/raw.js > dist/js/browserified.js; echo 'browserified'; babel dist/js/browserified.js --presets=env > dist/js/index.min.js; echo 'babelified'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "art-template": "^4.12.2"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "finalhandler": "^1.1.1",
+    "serve-static": "^1.13.2"
+  }
+}

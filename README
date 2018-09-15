@@ -1,0 +1,2 @@
+Run: `npm run build`
+Build prod: `npm run build:prod`

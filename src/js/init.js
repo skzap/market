@@ -1,4 +1,4 @@
-var templates = ['navbar', 'listcategories']
+var templates = ['listcategories']
 
 // load english language strings and start the render
 loadLang("en", function() {
@@ -8,6 +8,7 @@ loadLang("en", function() {
     document.getElementById('content').innerHTML = html
 
     // init the topbar
+    document.getElementById('navbar-container').innerHTML = template('navbar.html', proxy)
     const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
     if ($navbarBurgers.length > 0) {
     $navbarBurgers.forEach( el => {

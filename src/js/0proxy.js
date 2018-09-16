@@ -1,4 +1,4 @@
-var proxy = new Proxy({},{
+window.proxy = new Proxy({},{
     get: function(obj, prop) {
         return get(obj, prop)
     },
@@ -9,7 +9,7 @@ var proxy = new Proxy({},{
   
 function set(obj, prop, value) {
     obj[prop] = value;
-  
+    console.log(obj, prop, value)
     // for single values where we dont want to update the full template
     if (!obj._template && document.getElementById(prop)) {
         document.getElementById(prop).innerHTML = value
@@ -27,6 +27,7 @@ function set(obj, prop, value) {
 }
   
 function get(obj, prop) {
+    if (prop == 'toJSON') return
     if (!(prop in obj))
       obj[prop] = new Proxy({_template: prop},{
         get: function(obj, prop) {

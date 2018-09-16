@@ -12,3 +12,4 @@ var server = http.createServer(function onRequest (req, res) {
 
 // Listen
 server.listen(3000)
+console.log('Running on http://localhost:3000/')

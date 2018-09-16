@@ -1,4 +1,4 @@
-var proxy = new Proxy({},{
+window.proxy = new Proxy({},{
     get: function(obj, prop) {
         return get(obj, prop)
     },
@@ -9,7 +9,7 @@ var proxy = new Proxy({},{
   
 function set(obj, prop, value) {
     obj[prop] = value;
-  
+    console.log(obj, prop, value)
     // for single values where we dont want to update the full template
     if (!obj._template && document.getElementById(prop)) {
         document.getElementById(prop).innerHTML = value
@@ -27,6 +27,7 @@ function set(obj, prop, value) {
 }
   
 function get(obj, prop) {
+    if (prop == 'toJSON') return
     if (!(prop in obj))
       obj[prop] = new Proxy({_template: prop},{
         get: function(obj, prop) {
@@ -38,4 +39,54 @@ function get(obj, prop) {
       })
   
     return obj[prop]
+}
+
+var bind = {
+    listcategories: function() {
+                
+    }
+}
+
+bind.listcategories()
+
+template.defaults.imports.percent = function(float) {
+    return Math.round(10000*float)/100
+}
+var templates = ['navbar', 'listcategories']
+
+// load english language strings and start the render
+loadLang("en", function() {
+    var html = ''
+    for (let i = 0; i < templates.length; i++)
+        html += template(templates[i]+'.html', proxy)
+    document.getElementById('content').innerHTML = html
+
+    // init the topbar
+    const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+    if ($navbarBurgers.length > 0) {
+    $navbarBurgers.forEach( el => {
+        el.addEventListener('click', () => {
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+        });
+    });
+    }
+})
+
+
+function loadLang(lang, cb) {
+    var xmlhttp = new XMLHttpRequest();
+    var url = "/locales/"+lang+".json";
+    
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var json = JSON.parse(this.responseText);
+            proxy.strings = json
+            cb()
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
 }

@@ -29,14 +29,14 @@ function set(obj, prop, value) {
 function get(obj, prop) {
     if (prop == 'toJSON') return
     if (!(prop in obj))
-      obj[prop] = new Proxy({_template: prop},{
-        get: function(obj, prop) {
-          return get(obj, prop)
-        },
-        set: function(obj, prop, value) {
-          return set(obj, prop, value)
-        }
-      })
+        obj[prop] = new Proxy({_template: prop},{
+            get: function(obj, prop) {
+                return get(obj, prop)
+            },
+            set: function(obj, prop, value) {
+                return set(obj, prop, value)
+            }
+        })
   
     return obj[prop]
 }

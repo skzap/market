@@ -1,0 +1,1 @@
+window.steem = require('steem')

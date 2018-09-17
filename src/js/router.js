@@ -59,20 +59,13 @@ window.Router = {
         return this;
     },
     listen: function() {
-        var self = this;
-        var current = self.getFragment();
-        var fn = function() {
-            if(current !== self.getFragment()) {
-                current = self.getFragment();
-                self.check(current);
-            }
-        }
-        clearInterval(this.interval);
-        this.interval = setInterval(fn, 50);
-        return this;
+        window.addEventListener("hashchange", function(){
+            Router.check()
+            Router.navigate(Router.getFragment());
+        }, false);
+        
     },
     navigate: function(path) {
-        console.log(path)
         path = path ? path : '';
         if(this.mode === 'history') {
             history.pushState(null, null, this.root + this.clearSlashes(path));
@@ -86,20 +79,21 @@ window.Router = {
 // configuration
 Router.config({ mode: 'hash'});
 
-// returning the user to the initial state
-Router.navigate(Router.getFragment());
-
 // adding routes
 Router
 .add(/about/, function() {
-    console.log('about');
+    document.getElementById('content').innerHTML = template('about.html', {})
+})
+.add(/addannounce/, function() {
+    document.getElementById('content').innerHTML = template('addannounce.html', {})
+})
+.add(/addcategory/, function() {
+    document.getElementById('content').innerHTML = template('addcategory.html', {})
 })
 .add(/products\/(.*)\/edit\/(.*)/, function() {
     console.log('products', arguments);
 })
 .add(function() {
-    console.log('default page (most likely 404)');
+    document.getElementById('content').innerHTML = template('404.html', {})
 })
-
-// forwarding
-//Router.navigate('/about');
+.listen()

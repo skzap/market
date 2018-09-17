@@ -6,12 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:prod": "node build.js; browserify dist/js/raw.js > dist/js/browserified.js; echo 'browserified'; babel dist/js/browserified.js --presets=env > dist/js/index.js; echo 'babelified'; uglifyjs --screw-ie8 --compress=dead_code,evaluate,loops,unused dist/js/index.js > dist/js/index.min.js; echo 'uglified'",
-    "build": "node build.js; browserify dist/js/raw.js > dist/js/browserified.js; echo 'browserified'; babel dist/js/browserified.js --presets=env > dist/js/index.min.js; echo 'babelified'"
+    "build": "node build.js; browserify dist/js/raw.js > dist/js/browserified.js; echo 'browserified'; babel dist/js/browserified.js --presets=env > dist/js/index.min.js; echo 'babelified'",
+    "build:fast": "node build.js; browserify dist/js/raw.js > dist/js/index.min.js; echo 'browserified';"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "art-template": "^4.12.2"
+    "art-template": "^4.12.2",
+    "steem": "^0.7.1"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",

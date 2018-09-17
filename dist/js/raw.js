@@ -29,54 +29,119 @@ function set(obj, prop, value) {
 function get(obj, prop) {
     if (prop == 'toJSON') return
     if (!(prop in obj))
-      obj[prop] = new Proxy({_template: prop},{
-        get: function(obj, prop) {
-          return get(obj, prop)
-        },
-        set: function(obj, prop, value) {
-          return set(obj, prop, value)
-        }
-      })
+        obj[prop] = new Proxy({_template: prop},{
+            get: function(obj, prop) {
+                return get(obj, prop)
+            },
+            set: function(obj, prop, value) {
+                return set(obj, prop, value)
+            }
+        })
   
     return obj[prop]
 }
 
+window.steem = require('steem')
 var bind = {
     listcategories: function() {
                 
+    },
+    navbar: function() {
+        var loginModal = navbar.getElementsByClassName('modal')[0]
+        var closeModal = navbar.getElementsByClassName('modal-close')[0]
+        var loginButton = navbar.getElementsByClassName('button login')[0]
+        var loginConfirm = navbar.getElementsByClassName('button confirm')[0]
+        var loginCancel = navbar.getElementsByClassName('button cancel')[0]
+
+        if (!proxy.user)
+            loginButton.onclick = () => loginModal.classList.add('is-active')
+        closeModal.onclick = () => loginModal.classList.remove('is-active')
+        loginCancel.onclick = () => loginModal.classList.remove('is-active')
+        loginConfirm.onclick = () => login()
+
+        function login() {
+            var username = document.getElementById('inputLoginUser').value.trim().replace('@', '')
+            var key = document.getElementById('inputLoginKey').value.trim()
+            if (!username || !key) throw "Need username AND key"
+            steem.api.getAccounts([username], function(err, result) {
+                if (err) throw err;
+                var chainuser = result[0]
+                var user = {
+                  privatekey: key
+                }
+                try {
+                  user.publickey = steem.auth.wifToPublic(user.privatekey)
+                } catch (e) {
+                  throw "Wrong key"
+                  return
+                }
+
+                if (chainuser.posting.key_auths[0][0] == user.publickey) {
+                    user.username = username
+                    user.balance = chainuser.balance
+                    proxy.user = user
+                    console.log('Logged in as '+proxy.user.username)
+                    loginModal.classList.remove('is-active')
+                    navbar.innerHTML = template('navbar.html', proxy)
+                    bind.navbar()
+                } else {
+                    throw "Existing key but not matching username"
+                }
+            })
+        }
     }
 }
 
 bind.listcategories()
 
+window.config = {
+    root_category: 'curator/root-category'
+}
 template.defaults.imports.percent = function(float) {
     return Math.round(10000*float)/100
 }
 var templates = ['listcategories']
+var loadedLang = false
+var loadedSteem = false
+
+proxy.user = null
 
 // load english language strings and start the render
+loadSteem(function() {
+    loadedSteem = true
+    ifLoadedStartup()
+})
 loadLang("en", function() {
-    var html = ''
-    for (let i = 0; i < templates.length; i++)
-        html += template(templates[i]+'.html', proxy)
-    document.getElementById('content').innerHTML = html
-
-    // init the topbar
-    document.getElementById('navbar-container').innerHTML = template('navbar.html', proxy)
-    const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-    if ($navbarBurgers.length > 0) {
-    $navbarBurgers.forEach( el => {
-        el.addEventListener('click', () => {
-            const target = el.dataset.target;
-            const $target = document.getElementById(target);
-            el.classList.toggle('is-active');
-            $target.classList.toggle('is-active');
-        });
-    });
-    }
+    loadedLang = true
+    ifLoadedStartup()
 })
 
+function ifLoadedStartup() {
+    if (loadedLang && loadedSteem) {
+        // init the navbar
+        window.navbar = document.getElementById('navbar-container')
+        navbar.innerHTML = template('navbar.html', proxy)
+        bind.navbar()
+        const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        if ($navbarBurgers.length > 0) {
+            $navbarBurgers.forEach( el => {
+                el.addEventListener('click', () => {
+                    const target = el.dataset.target;
+                    const $target = document.getElementById(target);
+                    el.classList.toggle('is-active');
+                    $target.classList.toggle('is-active');
+                });
+            });
+        }
 
+        // start router
+        Router.navigate(Router.getFragment());
+        Router.check()
+
+        // hide the loader
+        pageloader.classList.remove('is-active')
+    }
+}
 function loadLang(lang, cb) {
     var xmlhttp = new XMLHttpRequest();
     var url = "/locales/"+lang+".json";
@@ -152,20 +217,14 @@ window.Router = {
         return this;
     },
     listen: function() {
-        var self = this;
-        var current = self.getFragment();
-        var fn = function() {
-            if(current !== self.getFragment()) {
-                current = self.getFragment();
-                self.check(current);
-            }
-        }
-        clearInterval(this.interval);
-        this.interval = setInterval(fn, 50);
-        return this;
+        window.addEventListener("hashchange", function(){
+            console.log('hashchange')
+            Router.check()
+            Router.navigate(Router.getFragment());
+        }, false);
+        
     },
     navigate: function(path) {
-        console.log(path)
         path = path ? path : '';
         if(this.mode === 'history') {
             history.pushState(null, null, this.root + this.clearSlashes(path));
@@ -179,20 +238,59 @@ window.Router = {
 // configuration
 Router.config({ mode: 'hash'});
 
-// returning the user to the initial state
-Router.navigate(Router.getFragment());
-
 // adding routes
 Router
 .add(/about/, function() {
-    console.log('about');
+    document.getElementById('content').innerHTML = template('about.html', {})
+})
+.add(/addannounce/, function() {
+    document.getElementById('content').innerHTML = template('addannounce.html', {})
+})
+.add(/addcategory/, function() {
+    document.getElementById('content').innerHTML = template('addcategory.html', {})
 })
 .add(/products\/(.*)\/edit\/(.*)/, function() {
     console.log('products', arguments);
 })
 .add(function() {
-    console.log('default page (most likely 404)');
+    document.getElementById('content').innerHTML = template('404.html', {})
 })
+.listen()
+// load categories
+function loadSteem(cb) {
+    steem.api.getState('marketplace/@'+config.root_category, function(e,r) {
+        var tree = buildTree(r.content, config.root_category.split('/')[0], config.root_category.split('/')[1])
+        proxy.categories = tree
+        cb()
+    })
+}
 
-// forwarding
-//Router.navigate('/about');
+function buildTree(content, rootAuthor, rootPermlink) {
+    var root = content[rootAuthor+'/'+rootPermlink]
+    var comments = []
+    for (var i = 0; i < root.replies.length; i++) {
+      var comment = {
+        category: content[root.replies[i]].category,
+        body: content[root.replies[i]].body,
+        author: content[root.replies[i]].author,
+        permlink: content[root.replies[i]].permlink,
+        total_payout_value: content[root.replies[i]].total_payout_value,
+        curator_payout_value: content[root.replies[i]].curator_payout_value,
+        pending_payout_value: content[root.replies[i]].pending_payout_value
+      }
+      comment.children = buildTree(content, content[root.replies[i]].author, content[root.replies[i]].permlink)
+      comments.push(comment)
+    }
+    comments = comments.sort(function(a,b) {
+      var diff = parseInt(b.total_payout_value.split(' ')[0].replace('.',''))
+        +parseInt(b.curator_payout_value.split(' ')[0].replace('.',''))
+        +parseInt(b.pending_payout_value.split(' ')[0].replace('.',''))
+        -parseInt(a.total_payout_value.split(' ')[0].replace('.',''))
+        -parseInt(a.curator_payout_value.split(' ')[0].replace('.',''))
+        -parseInt(a.pending_payout_value.split(' ')[0].replace('.',''))
+      if (diff == 0) {
+        return new Date(b.created) - new Date(a.created)
+      } return diff
+    })
+    return comments
+  }

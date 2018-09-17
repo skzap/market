@@ -9,17 +9,93 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ipfs/0.32.0-rc.1/index.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
         <script defer src="https://use.fontawesome.com/releases/v5.1.0/js/all.js"></script>
+        <link href="css/pageloader.css" rel="stylesheet">
     </head>
     
     <body style='margin:0'>
+        <div class="pageloader is-active" id="pageloader"><span class="title">Loading...</span></div>
         <div id="navbar-container"></div>
         <div id="content"></div>
-        <script id="add_article.html" type="text/html"></script><script id="add_category.html" type="text/html"></script><script id="add_review.html" type="text/html"></script><script id="article.html" type="text/html"></script><script id="buy.html" type="text/html"></script><script id="edit_profile.html" type="text/html"></script><script id="list_articles.html" type="text/html"></script><script id="listcategories.html" type="text/html"><div id="listcategories">
+        <script id="404.html" type="text/html"><div id="404">
+    <center>
+        <h1>404 Error</h1>
+        <h2>Route not found</h2>
+    </center>
+</div></script><script id="about.html" type="text/html"><div id="about">
+    <center>
+        <h1>Steem Market</h1>
+        <h2>In construction</h2>
+    </center>
+</div></script><script id="add_review.html" type="text/html"></script><script id="addannounce.html" type="text/html"></script><script id="addcategory.html" type="text/html"><nav class="panel">
+    <p class="panel-heading">
+        Categories
+    </p>
+    <div class="panel-block">
+        <p class="control has-icons-left">
+            <input class="input is-small" type="text" placeholder="search">
+            <span class="icon is-small is-left">
+              <i class="fas fa-search" aria-hidden="true"></i>
+            </span>
+        </p>
+    </div>
+    <p class="panel-tabs">
+        <a class="is-active">all</a>
+        <a>public</a>
+        <a>private</a>
+        <a>sources</a>
+        <a>forks</a>
+    </p>
+    <a class="panel-block is-active">
+        <span class="panel-icon">
+            <i class="fas fa-book" aria-hidden="true"></i>
+        </span>
+        bulma
+    </a>
+    <a class="panel-block">
+        <span class="panel-icon">
+            <i class="fas fa-book" aria-hidden="true"></i>
+        </span>
+        marksheet
+    </a>
+    <a class="panel-block">
+        <span class="panel-icon">
+            <i class="fas fa-book" aria-hidden="true"></i>
+        </span>
+        minireset.css
+    </a>
+    <a class="panel-block">
+        <span class="panel-icon">
+            <i class="fas fa-book" aria-hidden="true"></i>
+        </span>
+        jgthms.github.io
+    </a>
+    <a class="panel-block">
+        <span class="panel-icon">
+            <i class="fas fa-code-branch" aria-hidden="true"></i>
+        </span>
+        daniellowtw/infboard
+    </a>
+    <a class="panel-block">
+        <span class="panel-icon">
+            <i class="fas fa-code-branch" aria-hidden="true"></i>
+        </span>
+        mojs
+    </a>
+    <label class="panel-block">
+        <input type="checkbox">
+        remember me
+    </label>
+    <div class="panel-block">
+        <button class="button is-link is-outlined is-fullwidth">
+            reset all filters
+        </button>
+    </div>
+</nav></script><script id="article.html" type="text/html"></script><script id="buy.html" type="text/html"></script><script id="edit_profile.html" type="text/html"></script><script id="list_articles.html" type="text/html"></script><script id="listcategories.html" type="text/html"><div id="listcategories">
     <h1>{{strings.TITLE}}</h1>
 </div></script><script id="navbar.html" type="text/html"><nav class="navbar is-transparent">
     <div class="navbar-brand">
         <a class="navbar-item">
-            <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28">
+            <i class="fab fa-pied-piper-alt" style="width:112px; height:65px;"></i>
         </a>
         <div class="navbar-burger burger" data-target="navbarExampleTransparentExample">
             <span></span>
@@ -30,66 +106,107 @@
     
     <div id="navbarExampleTransparentExample" class="navbar-menu">
         <div class="navbar-start">
-            <a class="navbar-item" href="#home">
-                Home
+            <a class="navbar-item" href="#about">
+                About
             </a>
             <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link" href="#documentation/overview/start/">
-                Docs
+                <a class="navbar-link" href="#categories">
+                    Categories
                 </a>
                 <div class="navbar-dropdown is-boxed">
-                    <a class="navbar-item" href="#documentation/overview/start/">
-                        Overview
-                    </a>
-                    <a class="navbar-item" href="#documentation/modifiers/syntax/">
-                        Modifiers
-                    </a>
-                    <a class="navbar-item" href="#documentation/columns/basics/">
-                        Columns
-                    </a>
-                    <a class="navbar-item" href="#documentation/layout/container/">
-                        Layout
-                    </a>
-                    <a class="navbar-item" href="#documentation/form/general/">
-                        Form
-                    </a>
-                    <hr class="navbar-divider">
-                    <a class="navbar-item" href="#documentation/elements/box/">
-                        Elements
-                    </a>
-                    <a class="navbar-item is-active" href="#documentation/components/breadcrumb/">
-                        Components
-                    </a>
+                    {{each categories}}
+                        <a class="navbar-item" href="#category/123">
+                            {{$value.body}}
+                        </a>
+                    {{/each}}
                 </div>
             </div>
+            {{if user}}
+                <a class="navbar-item" href="#addannounce">
+                    Add announce
+                </a>
+                <a class="navbar-item" href="#addcategory">
+                    Add category
+                </a>
+            {{/if}}
         </div>
     
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="field is-grouped">
-                    <p class="control">
-                        <a class="bd-tw-button button" data-social-network="Twitter" data-social-action="tweet" data-social-target="http://localhost:4000" target="_blank" href="https://twitter.com/intent/tweet?text=Bulma: a modern CSS framework based on Flexbox&amp;hashtags=bulmaio&amp;url=http://localhost:4000&amp;via=jgthms">
-                            <span class="icon">
-                                <i class="fab fa-twitter"></i>
-                            </span>
-                            <span>
-                                Tweet
-                            </span>
-                        </a>
-                    </p>
-                    <p class="control">
-                        <a class="button is-primary" href="https://github.com/jgthms/bulma/releases/download/0.7.1/bulma-0.7.1.zip">
-                            <span class="icon">
-                                <i class="fas fa-download"></i>
-                            </span>
-                            <span>Download</span>
-                        </a>
-                    </p>
+                    {{if user}}
+                        <p class="control">
+                            <a class="button is-success profile">
+                                <span>{{user.username}} ({{user.balance}})</span>
+                            </a>
+                        </p>
+                    {{else}}
+                        <p class="control">
+                            <a class="button is-text is-focused login">
+                                <span class="icon">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </span>
+                                <span>Login</span>
+                            </a>
+                        </p>
+                    {{/if}}
                 </div>
             </div>
         </div>
     </div>
-</nav></script><script id="profile.html" type="text/html"></script>
+</nav>
+
+<div class="modal" id="modal-login">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Sign In</p>
+            <button class="delete modal-close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label">User</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control">
+                            <input id="inputLoginUser" class="input" type="text">
+                        </p>
+                    </div>
+                </div>
+            </div>
+                
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label">Key</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control">
+                            <input id="inputLoginKey" class="input" type="password">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec diam quam, ullamcorper sit amet nunc sit amet, auctor tincidunt justo. Nullam sed turpis ipsum. Ut lacinia rhoncus pharetra. Curabitur rutrum imperdiet egestas. Aenean vitae gravida sem, eu egestas urna. Cras id dui ac tortor imperdiet ornare sit amet a lorem. Nunc sollicitudin ultrices enim eget consectetur. Praesent dictum hendrerit nisl, vitae malesuada libero tempor posuere. Donec ac tristique massa, in dictum urna. Integer cursus ipsum in convallis viverra. Phasellus condimentum aliquet commodo.
+            </p><p>
+                    Curabitur in accumsan magna, quis ornare turpis. Maecenas ut iaculis ex. Quisque commodo ornare tempus. Vestibulum pellentesque sapien eget diam maximus, sit amet lacinia urna volutpat. Nulla lacus elit, lobortis ut dui eu, varius porttitor lorem. Phasellus sed neque et tellus sodales gravida. Curabitur et neque ac lacus feugiat commodo eu ut quam. Mauris eu elit tellus.
+            </p><p>
+                    Duis nibh felis, ultrices eget dignissim id, egestas vitae ligula. Integer non magna sed elit porttitor sodales eu sed orci. Ut mattis augue ut ligula elementum elementum. Donec commodo, urna dapibus eleifend rhoncus, leo libero auctor elit, eget suscipit arcu justo id metus. Suspendisse sed lorem malesuada, viverra lacus scelerisque, semper mi. Fusce sed lobortis metus. Aliquam eget nisi sodales, tincidunt ligula ut, scelerisque libero. In lacinia odio nec viverra mollis.
+            </p><p>
+                    Aliquam justo metus, pulvinar et porttitor quis, molestie ac magna. Sed id tincidunt turpis. Integer suscipit rhoncus pharetra. Phasellus vulputate dolor id ultricies ultrices. Mauris sit amet elit at risus luctus condimentum. In congue leo sit amet neque mattis fringilla. Aenean ut hendrerit nisl, non congue sem. Nullam id ipsum lacinia, venenatis urna a, mollis turpis. Donec pharetra tincidunt viverra. In non odio fermentum, facilisis mauris et, condimentum tortor. Etiam vel ante et sem bibendum euismod. Phasellus ultrices metus vel mauris vulputate vehicula. Maecenas luctus blandit lectus, at hendrerit nulla. In cursus semper ex vel elementum. Vestibulum hendrerit est egestas erat varius, efficitur varius nunc elementum.
+            </p><p>
+                    Aenean pretium mi a odio sagittis vulputate. Vestibulum posuere sapien non lorem dapibus dictum. Nulla in fringilla ipsum. Donec sollicitudin lectus risus, eget cursus nisi cursus vitae. Vestibulum placerat, turpis eu bibendum tristique, ante nulla posuere urna, in faucibus mi elit sit amet felis. Quisque eleifend lacus ut quam dapibus eleifend. In accumsan ligula magna, ornare laoreet orci imperdiet et. Nam ac massa sed tellus ullamcorper varius vel non lorem. Duis blandit in ipsum quis mollis. Nullam non eros at neque elementum vestibulum. Aenean nec ullamcorper orci, vel convallis purus. Vestibulum et lacus non nisi egestas sagittis sed tempus dui. Aliquam sem elit, lacinia non lobortis et, iaculis non metus. Donec metus nunc, viverra nec iaculis eget, tempus nec sapien. Nullam ultrices in augue id pulvinar.
+            </p>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success confirm">I agree and login</button>
+            <button class="button cancel">Cancel</button>
+        </footer>
+    </div>
+</div></script><script id="profile.html" type="text/html"></script>
         <script src="js/index.min.js"></script>
     </body>
 </html>
